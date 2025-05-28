@@ -119,3 +119,15 @@ height: 140px;
   font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
+  @media (max-width: 768px) { /* For devices with width ≤ 768px */
+    .dd {
+      overflow-x: scroll;
+    }
+  }
+
+
+  .ht1{
+
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    letter-spacing: 2px;  
+  }

@@ -1,10 +1,13 @@
 import React, { useRef } from 'react'
 import './homes.css';
 import { Container, Button, Carousel } from 'react-bootstrap';
+import Prodcard from '../components/Prodcard';
 
 function Homes() {
 
     const scrollRef = useRef(null);
+
+    const scrollRef2 = useRef(null);
 
     const categories = [
         "Electronics", "Men's Fashion", "Women's Fashion", "Kids' Fashion",
@@ -37,7 +40,7 @@ function Homes() {
     };
 
     const scrolld = (direction) => {
-        const container = scrollRef.current;
+        const container = scrollRef2.current;
         if (container) {
             const scrollAmount = direction === 'left' ? -150 : 150;
             container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
@@ -107,7 +110,7 @@ function Homes() {
                     </span>
 
                     <div
-                        ref={scrollRef}
+                        ref={scrollRef2}
                         className="scroll-container d-flex"
                         style={{
                             overflowX: 'auto',
@@ -119,17 +122,41 @@ function Homes() {
                     >
                         {deals.map((deal, index) => (
                             <div className='ms-3 me-3'>
-                              <img src={deal.image} alt="category"  className=""  style={{ width: '100px', height: '100px', objectFit: 'contain' }} />
+                                <img src={deal.image} alt="category" className="" style={{ width: '100px', height: '100px', objectFit: 'contain' }} />
+                                <h6 className='text-center'>{deal.name}</h6>
 
                             </div>
 
                         ))}
                     </div>
 
-                    <span onClick={() => scroll('right')} className="ms-2" style={{ cursor: 'pointer' }}>
+                    <span onClick={() => scrolld('right')} className="ms-2" style={{ cursor: 'pointer' }}>
                         <i class="fa-solid fa-greater-than fa-md" style={{ color: ' #000000' }}></i>
                     </span>
                 </Container>
+
+
+
+
+                {/* ----------recently viewed produvts-------- */}
+
+                <h3 className="text-start ht1 container mb-4 mt-5">RECENTLY <span className='lt1'> viewed</span> </h3>
+                <div className=' container d-flex justify-content-between dd mb-4'>
+
+                    <Prodcard />
+
+                </div>
+
+
+
+
+                {/* ---------recommended--------- */}
+                <h3 className="text-start ht1 container mb-4 mt-5">RECOMMENDED <span className='lt1'> for you..</span> </h3>
+                <div className=' container d-flex justify-content-between dd mb-4'>
+
+                    <Prodcard />
+
+                </div>
 
 
             </div>

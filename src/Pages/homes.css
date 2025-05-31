@@ -1,9 +1,3 @@
-.scroll-container::-webkit-scrollbar {
-  display: none;
-}
-.scroll-container {
-  scrollbar-width: none; /* Firefox */
-}
 
 
 .tt{
@@ -12,3 +6,4 @@
     font-family: Georgia, 'Times New Roman', Times, serif;
     letter-spacing: 3px;
 }
+

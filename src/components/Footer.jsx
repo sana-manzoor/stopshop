@@ -3,7 +3,8 @@ import im from '../assets/s.jpg';
 
 function Footer() {
   return (
- <div style={{height:'230px',backgroundColor:'rgb(0, 0, 0)',bottom:'0px'}}>
+ <div style={{height:'230px',backgroundColor:'rgb(0, 0, 0)',bottom:'0px',  position: 'relative', // Can also be 'sticky' if needed
+  zIndex: 1}}>
         <div className="row">
             <div className="col">
             <h6  className='hh2 m-5 text-light'>          

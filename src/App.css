@@ -131,3 +131,34 @@ height: 140px;
     font-family: Georgia, 'Times New Roman', Times, serif;
     letter-spacing: 2px;  
   }
+
+.no-arrow .dropdown-toggle::after {
+  display: none;
+}
+
+
+
+
+.plain-text-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  /* color: blue;
+  text-decoration: underline; */
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.plain-text-toggle::after {
+  display: none; /* hide dropdown arrow */
+}
+
+
+
+
+
+
+
+
+
+

@@ -4,6 +4,7 @@ import { Container, Button, Carousel } from 'react-bootstrap';
 import Prodcard from '../components/Prodcard';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { getallcat, getallsub } from '../services/allApis';
+import { useNavigate } from 'react-router-dom';
 
 function Homes() {
 
@@ -13,6 +14,8 @@ function Homes() {
 
     const [subcat, setSubcat] = useState([])
 
+
+const navigate=useNavigate()
 
     const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
     const containerRef = useRef(null);
@@ -96,24 +99,22 @@ function Homes() {
 
     const getss = (id) => {
         console.log("inside gets", id)
+        sessionStorage.setItem("cid", JSON.stringify(id))
+        navigate('/allprod')
+
 
     }
 
 
-    // useEffect(() => {
-    //     getallcats();
-    //     function onClickOutside(event) {
-    //         if (
-    //             containerRef.current &&
-    //             !containerRef.current.contains(event.target)
-    //         ) {
-    //             closeMenu();
-    //         }
-    //     }
-    //     document.addEventListener("mousedown", onClickOutside);
-    //     return () => document.removeEventListener("mousedown", onClickOutside);
+    const getsubb=(id)=>{
+        console.log("sid is",id)
+        sessionStorage.setItem("sid", JSON.stringify(id))
+        navigate('/getprod')
 
-    // }, []);
+    }
+
+
+
 
 
     const popupRef = useRef(null);
@@ -150,6 +151,8 @@ function Homes() {
 
 
                 {/* ---------- */}
+
+
                 <div className='container'
                     ref={containerRef}
                     style={{
@@ -158,18 +161,7 @@ function Homes() {
                         display: "flex",
                     }}
                 >
-                    {/* <span onClick={() => scroll('left')}
-  style={{
-    cursor: 'pointer',
-    userSelect: 'none',
-    fontSize: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 8px',
-  }}>
-                        <i className="fa-solid fa-less-than fa-md" style={{ color: ' #000000' }}></i>
-                    </span> */}
-
+ 
                     {categories.map((cat, i) => (
                         <span
                             key={i}
@@ -186,17 +178,7 @@ function Homes() {
                         </span>
                     ))}
 
-                    {/* <span onClick={() => scroll('left')}
-  style={{
-    cursor: 'pointer',
-    userSelect: 'none',
-    fontSize: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 8px',
-  }}>
-                        <i className="fa-solid fa-greater-than fa-md" style={{ color: ' #000000' }}></i>
-                    </span> */}
+                 
                 </div>
 
                 {openIndex !== null && (
@@ -224,7 +206,7 @@ function Homes() {
                                 <div
 
                                     style={{ padding: "8px", cursor: "pointer" }}
-                                    onClick={() => alert(sub.sname)} // or navigate/use the id
+                                    onClick={() => getsubb(sub.sid)} // or navigate/use the id
                                 >
                                     {sub.sname}
                                 </div>
@@ -258,54 +240,6 @@ function Homes() {
             </Container>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            {/* <Container className="d-flex align-items-center">
-                    <span onClick={() => scroll('left')} className="me-2" style={{ cursor: 'pointer' }}>
-                        <i className="fa-solid fa-less-than fa-md" style={{ color: ' #000000' }}></i>
-                    </span>
-
-                    <div
-                        ref={scrollRef}
-                        className="scroll-container d-flex gap-3"
-                    >
-                      {categories.map((cat, index) => (
-    <div key={index} className="category-wrapper">
-      <div className="dropdown-wrapper" style={{ minWidth: 'max-content' }}>
-        <button className="btn btn-outline-primary px-3 py-2 tt">
-          {cat}
-        </button>
-
-        <div className="dropdown-content">
-          {sampleSubcategories.map((sub, i) => (
-            <div key={i} className="dropdown-item">
-              {sub}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  ))}
-                    </div>
-
-                    <span onClick={() => scroll('right')} className="ms-2" style={{ cursor: 'pointer' }}>
-                        <i className="fa-solid fa-greater-than fa-md" style={{ color: ' #000000' }}></i>
-                    </span>
-                </Container> */}
 
 
 

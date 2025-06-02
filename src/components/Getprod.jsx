@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getsprod, getcprod } from '../services/allApis';
+import { useNavigate } from 'react-router-dom';
+import { addcart } from '../services/allApis';
 
 function Getprod() {
 
@@ -12,12 +14,15 @@ function Getprod() {
 
   const [defaultSubcategory, setDefaultSubcategory] = useState(null);
 
+  const navigate=useNavigate()
 
   const [checkedCategories, setCheckedCategories] = useState([]);
 
   const [sid, setSid] = useState(null);
 
   const [cid, setCid] = useState(null);
+
+  const [token,setToken]=useState("")
 
 
 
@@ -34,7 +39,7 @@ function Getprod() {
       console.log(cid)
       setDefaultSubcategory(result.data[0].sname);
       setCheckedCategories([result.data[0].sname]);
-      sessionStorage.removeItem('sid');
+      // sessionStorage.removeItem('sid');
     }
     else {
       const result = await getsprod(sid)
@@ -62,17 +67,56 @@ function Getprod() {
     }
   };
 
-const filteredProducts = checkedCategories.length === 0
-  ? allps
-  : allps.filter(item => checkedCategories.includes(item.sname));
+  const filteredProducts = checkedCategories.length === 0
+    ? allps
+    : allps.filter(item => checkedCategories.includes(item.sname));
+
+
+  const handle = async (id) => {
+    console.log(id)
+    sessionStorage.setItem("pid", JSON.stringify(id))
+    navigate('/viewprod')
+  }
 
 
 
+  const addtocart = async (item) => {
+      console.log(item)
+      if (!sessionStorage.getItem("currentUser")) {
+        alert("Login First!!")
+      navigate('/', { state: { from: '/allprod' } })
+      }
+      else {
+        const id = sessionStorage.getItem("currentUser")
+        const idd = JSON.parse(id)
+        const totall = item.price * 1
+        const dataToSend = { pid: item._id, title: item.title, price: item.price, image: item.image, uid: idd, total: totall };
+        const reqHeader = {
+          "Authorization": `Bearer ${token} `
+        }
+        console.log(dataToSend)
+        const res1 = await addcart(dataToSend,reqHeader)
+        console.log(res1)
+        if (res1.status === 200) {
+          alert("Product added to cart!!")
+          // navigate('/cart')
+        }
+        else {
+          alert("Product Already excists in cart")
+        }
+      }
+    }
+  
+  
+    useEffect(() => {
+      allpr()
+      if (sessionStorage.getItem("token")) {
+        setToken(sessionStorage.getItem("token"))
+      }
+    }, [])
+  
 
-  useEffect(() => {
-    allpr()
-  }, [])
-
+ 
 
   useEffect(() => {
     if (cid !== null) {
@@ -116,7 +160,7 @@ const filteredProducts = checkedCategories.length === 0
             <div className="mb-3">
               <form>
                 <label htmlFor="category" className="p-2"><b>SUB CATEGORIES</b></label><br />
-                <input type="checkbox"  checked={checkedCategories.length === 0} onChange={() => setCheckedCategories([])}
+                <input type="checkbox" checked={checkedCategories.length === 0} onChange={() => setCheckedCategories([])}
                 /> All                <br />
                 {
                   [...new Map(allps.map(item => [item.sname, item])).values()].map(item => (
@@ -159,7 +203,7 @@ const filteredProducts = checkedCategories.length === 0
                       <img
                         src={item.image}
                         alt="Product"
-
+                        onClick={()=>handle(item._id)}
                         className="product-image rounded-top"
                       />
                       <div className="product-info p-2">
@@ -167,7 +211,7 @@ const filteredProducts = checkedCategories.length === 0
                         <p className="product-price ht1 fw-bold">{item.price}</p>
                         <div className="d-flex justify-content-evenly ">
 
-                          <button className='btn btn-outline-dark' >
+                          <button className='btn btn-outline-dark' onClick={() => { addtocart(item) }} >
                             <span><i className="fa-solid fa-cart-plus fa-lg"></i></span>
                           </button>
                           <button className='btn btn-outline-dark' >

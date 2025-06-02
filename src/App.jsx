@@ -8,9 +8,9 @@ import Login from './Pages/Login'
 import Wish from './Pages/Wish'
 import Cart from './Pages/Cart'
 import View from './Pages/View'
-import Scroll from './Pages/Scroll'
 import Allprod from './components/Allprod'
 import Getprod from './components/Getprod'
+import Viewprod from './components/Viewprod'
 
 function App() {
 
@@ -25,8 +25,7 @@ function App() {
         <Route path='view' element={<View/>} />
         <Route path='allprod' element={<Allprod/>} />
         <Route path='getprod' element={<Getprod/>} />
-
-
+        <Route path='viewprod' element={<Viewprod/>} />
 
 
       </Routes>

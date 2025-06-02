@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { loginApi } from '../services/allApis'
 import { useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 
 function Login() {
@@ -10,10 +11,11 @@ function Login() {
         password: ""
     })
 
-    const navigate=useNavigate()
+    const location = useLocation();
+    const navigate = useNavigate()
 
-    const [valp,setValp]=useState(true)
-    const [valpass,setValpass]=useState(true)
+    const [valp, setValp] = useState(true)
+    const [valpass, setValpass] = useState(true)
 
     const handle = (e) => {
         const { name, value } = e.target
@@ -23,7 +25,7 @@ function Login() {
                 setValp(true);
             } else {
                 setLog({ ...log, [name]: value });
-                setValp(false); 
+                setValp(false);
             }
         }
         else {
@@ -54,12 +56,13 @@ function Login() {
             console.log(res)
             if (res.status === 200) {
                 sessionStorage.setItem("currentUser", JSON.stringify(res.data.excistingUser._id))
-                
+
                 setLog({ phone: "", password: "" })
                 sessionStorage.setItem("token", res.data.token);
                 alert("Login Successfull!!")
                 setLog({ phone: "", password: "" });
-                navigate('/hom')
+                const redirectTo = location.state?.from || '/hom';
+                navigate(redirectTo);
 
             }
             else {
@@ -76,7 +79,7 @@ function Login() {
                 <form>
 
                     <div className="mb-3">
-                        <input type="tel" id="phone" required className="form-control " placeholder="Enter your phone" name='phone' onChange={(e)=>handle(e)} />
+                        <input type="tel" id="phone" required className="form-control " placeholder="Enter your phone" name='phone' onChange={(e) => handle(e)} />
                         {
                             !valp &&
                             <div className='text-danger'>*Enter valid phone number</div>
@@ -84,7 +87,7 @@ function Login() {
                     </div>
 
                     <div className="mb-3">
-                        <input type="password" id="password" className="form-control " placeholder="Enter your password" name='password' onChange={(e)=>handle(e)}/>
+                        <input type="password" id="password" className="form-control " placeholder="Enter your password" name='password' onChange={(e) => handle(e)} />
                         {
                             !valpass &&
                             <div className="text-danger">*Enter valid password</div>
@@ -93,7 +96,7 @@ function Login() {
 
 
                     <div className='d-flex justify-content-center'>
-                        <button className='button-49'onClick={(e)=>{handleLog(e)}} ><span>LOGIN</span></button>
+                        <button className='button-49' onClick={(e) => { handleLog(e) }} ><span>LOGIN</span></button>
                     </div>
 
                 </form>

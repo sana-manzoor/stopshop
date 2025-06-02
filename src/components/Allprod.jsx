@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getcprod } from '../services/allApis';
+import { useNavigate } from 'react-router-dom';
+import { addcart } from '../services/allApis';
 
 function Allprod() {
 
@@ -9,22 +11,25 @@ function Allprod() {
 
   const [checkedCategories, setCheckedCategories] = useState([]);
 
-   const [cid, setCid] = useState(null);
+  const [cid, setCid] = useState(null);
+
+  const [token, setToken] = useState("")
 
 
+  const navigate = useNavigate()
 
   const allpr = async () => {
-    if(sessionStorage.getItem("cid")){
+    if (sessionStorage.getItem("cid")) {
       const uu = JSON.parse(sessionStorage.getItem("cid"))
       setCid(uu)
       console.log(uu)
       const result = await getcprod(uu)
       console.log(result)
       setAllp(result.data)
-      sessionStorage.removeItem('cid');
+      // sessionStorage.removeItem('cid');
     }
-    else{
-       const result = await getcprod(cid)
+    else {
+      const result = await getcprod(cid)
       console.log(result)
       setAllp(result.data)
     }
@@ -46,8 +51,46 @@ function Allprod() {
 
 
 
+  const handle = async (id) => {
+    console.log(id)
+    sessionStorage.setItem("pid", JSON.stringify(id))
+    navigate('/viewprod')
+  }
+
+
+  const addtocart = async (item) => {
+    console.log(item)
+    if (!sessionStorage.getItem("currentUser")) {
+      alert("Login First!!")
+    navigate('/', { state: { from: '/allprod' } })
+    }
+    else {
+      const id = sessionStorage.getItem("currentUser")
+      const idd = JSON.parse(id)
+      const totall = item.price * 1
+      const dataToSend = { pid: item._id, title: item.title, price: item.price, image: item.image, uid: idd, total: totall };
+      const reqHeader = {
+        "Authorization": `Bearer ${token} `
+      }
+      console.log(dataToSend)
+      const res1 = await addcart(dataToSend,reqHeader)
+      console.log(res1)
+      if (res1.status === 200) {
+        alert("Product added to cart!!")
+        // navigate('/cart')
+      }
+      else {
+        alert("Product Already excists in cart")
+      }
+    }
+  }
+
+
   useEffect(() => {
     allpr()
+    if (sessionStorage.getItem("token")) {
+      setToken(sessionStorage.getItem("token"))
+    }
   }, [])
 
   console.log(allp)
@@ -127,7 +170,7 @@ function Allprod() {
                       <img
                         src={item.image}
                         alt="Product"
-
+                        onClick={() => handle(item._id)}
                         className="product-image rounded-top"
                       />
                       <div className="product-info p-2">
@@ -135,7 +178,7 @@ function Allprod() {
                         <p className="product-price ht1 fw-bold">{item.price}</p>
                         <div className="d-flex justify-content-evenly ">
 
-                          <button className='btn btn-outline-dark' >
+                          <button className='btn btn-outline-dark' onClick={() => { addtocart(item) }} >
                             <span><i className="fa-solid fa-cart-plus fa-lg"></i></span>
                           </button>
                           <button className='btn btn-outline-dark' >

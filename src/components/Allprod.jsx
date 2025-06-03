@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { getcprod } from '../services/allApis';
 import { useNavigate } from 'react-router-dom';
 import { addcart } from '../services/allApis';
+import { addwish, getwish } from '../services/allApis';
 
 function Allprod() {
 
@@ -14,6 +15,8 @@ function Allprod() {
   const [cid, setCid] = useState(null);
 
   const [token, setToken] = useState("")
+
+  const [wishlistPids, setWishlistPids] = useState([]);
 
 
   const navigate = useNavigate()
@@ -33,6 +36,23 @@ function Allprod() {
       console.log(result)
       setAllp(result.data)
     }
+
+    const fetchWishlist = async () => {
+      const user = sessionStorage.getItem("currentUser");
+      const token = sessionStorage.getItem("token");
+
+      if (user && token) {
+        const uid = JSON.parse(user);
+        const reqHeader = {
+          "Authorization": `Bearer ${token}`
+        };
+        const res = await getwish(uid, reqHeader);
+        if (res.status === 200) {
+          const pids = res.data.map(item => item.pid); // array of wishlisted product IDs
+          setWishlistPids(pids);
+        }
+      }
+    };
 
 
   }
@@ -62,7 +82,7 @@ function Allprod() {
     console.log(item)
     if (!sessionStorage.getItem("currentUser")) {
       alert("Login First!!")
-    navigate('/', { state: { from: '/allprod' } })
+      navigate('/', { state: { from: '/allprod' } })
     }
     else {
       const id = sessionStorage.getItem("currentUser")
@@ -73,7 +93,7 @@ function Allprod() {
         "Authorization": `Bearer ${token} `
       }
       console.log(dataToSend)
-      const res1 = await addcart(dataToSend,reqHeader)
+      const res1 = await addcart(dataToSend, reqHeader)
       console.log(res1)
       if (res1.status === 200) {
         alert("Product added to cart!!")
@@ -86,11 +106,62 @@ function Allprod() {
   }
 
 
+
+
+  const addwishlist = async (item) => {
+    if (!sessionStorage.getItem("currentUser")) {
+      alert("Login First!!")
+      navigate('/', { state: { from: '/allprod' } })
+    }
+    else {
+      const id = sessionStorage.getItem("currentUser")
+      const idd = JSON.parse(id)
+      const dataToSend = { pid: item._id, title: item.title, price: item.price, image: item.image, uid: idd };
+      console.log(dataToSend)
+      const reqHeader = {
+        "Authorization": `Bearer ${token} `
+      }
+      const res1 = await addwish(dataToSend, reqHeader)
+      console.log(res1)
+      if (res1.status === 201) {
+        alert("Item added to Wishlist!!")
+        setWishlistPids(prev => [...prev, item._id]);
+        // navigate('/wish')
+      }
+      else {
+        alert("Product Already excists")
+      }
+    }
+  }
+
+
+
+  const fetchWishlist = async () => {
+    const user = sessionStorage.getItem("currentUser");
+    const token = sessionStorage.getItem("token");
+
+    if (user && token) {
+      const uid = JSON.parse(user);
+      const reqHeader = {
+        "Authorization": `Bearer ${token}`
+      };
+      const res = await getwish(uid, reqHeader);
+      if (res.status === 200) {
+        const pids = res.data.map(item => item.pid);
+        setWishlistPids(pids);
+      }
+    }
+  };
+
+
+
   useEffect(() => {
     allpr()
     if (sessionStorage.getItem("token")) {
       setToken(sessionStorage.getItem("token"))
+      fetchWishlist()
     }
+
   }, [])
 
   console.log(allp)
@@ -181,8 +252,10 @@ function Allprod() {
                           <button className='btn btn-outline-dark' onClick={() => { addtocart(item) }} >
                             <span><i className="fa-solid fa-cart-plus fa-lg"></i></span>
                           </button>
-                          <button className='btn btn-outline-dark' >
-                            <span><i className="fa-solid fa-heart fa-lg"></i></span>
+                          <button className='btn btn-outline-dark' onClick={() => { addwishlist(item) }} >
+
+                            <i className={`fa-solid fa-heart fa-lg`}  style={{ color: wishlistPids.includes(item._id) ? 'red' : 'grey' }}></i> 
+                              {/* <i className="fa-solid fa-heart fa-lg" onClick={() => { addwishlist(item) }}></i></span> */}
                           </button>
                         </div>
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { loginApi } from '../services/allApis'
 import { useNavigate } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
+import im from '../assets/s (1).jpg';
 
 
 function Login() {
@@ -75,7 +76,11 @@ function Login() {
     return (
         <div className='d-flex justify-content-center align-items-center' style={{ height: '70vh' }}>
             <div className='border shadow p-5 lr-res' style={{ width: '400px' }}>
-                <h2 className="text-center  mb-4 mt-3">SIGN <span className='lt1'>in</span> </h2>
+                <div className="text-center">
+                    <img src={im} alt="Logo" style={{ height: '55px' }} />
+                </div>
+
+                <h4 className="text-center  mb-4 mt-3">SIGN <span className='lt1'>in</span> </h4>
                 <form>
 
                     <div className="mb-3">

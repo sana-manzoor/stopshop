@@ -5,6 +5,7 @@ import Prodcard from '../components/Prodcard';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { getallcat, getallsub } from '../services/allApis';
 import { useNavigate } from 'react-router-dom';
+import { getrecom, getrecent } from '../services/allApis';
 
 function Homes() {
 
@@ -14,8 +15,11 @@ function Homes() {
 
     const [subcat, setSubcat] = useState([])
 
+    const [recom, setRecom] = useState([])
 
-const navigate=useNavigate()
+    const [recent, setRecent] = useState([])
+
+    const navigate = useNavigate()
 
     const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
     const containerRef = useRef(null);
@@ -106,12 +110,28 @@ const navigate=useNavigate()
     }
 
 
-    const getsubb=(id)=>{
-        console.log("sid is",id)
+    const getsubb = (id) => {
+        console.log("sid is", id)
         sessionStorage.setItem("sid", JSON.stringify(id))
         navigate('/getprod')
 
     }
+
+
+    const getrecomm = async () => {
+        const result = await getrecom()
+        console.log(result)
+        setRecom(result.data)
+    }
+
+    const getrecentss = async () => {
+        const id = sessionStorage.getItem("currentUser")
+        const idd = JSON.parse(id)
+        const result = await getrecent(idd)
+        console.log(result)
+        setRecent(result.data)
+    }
+
 
 
 
@@ -121,6 +141,8 @@ const navigate=useNavigate()
 
     useEffect(() => {
         getallcats();
+        getrecomm();
+        getrecentss();
         function onClickOutside(event) {
             if (
                 containerRef.current &&
@@ -135,6 +157,7 @@ const navigate=useNavigate()
         return () => document.removeEventListener("mousedown", onClickOutside);
     }, []);
 
+    console.log(recent)
 
     return (
 
@@ -161,7 +184,7 @@ const navigate=useNavigate()
                         display: "flex",
                     }}
                 >
- 
+
                     {categories.map((cat, i) => (
                         <span
                             key={i}
@@ -178,7 +201,7 @@ const navigate=useNavigate()
                         </span>
                     ))}
 
-                 
+
                 </div>
 
                 {openIndex !== null && (
@@ -195,8 +218,8 @@ const navigate=useNavigate()
 
                         }}
                     >
-                          <div
-                            style={{ padding: "8px", cursor: "pointer"}}
+                        <div
+                            style={{ padding: "8px", cursor: "pointer" }}
                             onClick={() => getss(openIndex !== null ? categories[openIndex].cid : null)}
                         >
                             All
@@ -218,7 +241,7 @@ const navigate=useNavigate()
                         </div> */}
                             </React.Fragment>
                         ))}
-                      
+
 
 
                     </div>
@@ -299,8 +322,13 @@ const navigate=useNavigate()
             <h3 className="text-start ht1 container mb-4 mt-5">RECENTLY <span className='lt1'> viewed</span> </h3>
             <div className=' container d-flex justify-content-between dd mb-4'>
 
-                <Prodcard />
-
+                {
+                    recent?.map((item) => (
+                        item?.image && item?.title && item?.price && (
+                            <Prodcard key={item.pid} data={item} />
+                        )
+                    ))
+                }
             </div>
 
 
@@ -309,8 +337,11 @@ const navigate=useNavigate()
             {/* ---------recommended--------- */}
             <h3 className="text-start ht1 container mb-4 mt-5">RECOMMENDED <span className='lt1'> for you..</span> </h3>
             <div className=' container d-flex justify-content-between dd mb-4'>
-
-                <Prodcard />
+                {
+                    recom?.map((item) => (
+                        <Prodcard data={item} />
+                    ))
+                }
 
             </div>
 

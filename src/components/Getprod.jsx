@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { getsprod, getcprod } from '../services/allApis';
 import { useNavigate } from 'react-router-dom';
 import { addcart } from '../services/allApis';
+import { addwish, getwish } from '../services/allApis';
 
 function Getprod() {
 
@@ -14,7 +15,7 @@ function Getprod() {
 
   const [defaultSubcategory, setDefaultSubcategory] = useState(null);
 
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
   const [checkedCategories, setCheckedCategories] = useState([]);
 
@@ -22,8 +23,9 @@ function Getprod() {
 
   const [cid, setCid] = useState(null);
 
-  const [token,setToken]=useState("")
+  const [token, setToken] = useState("")
 
+  const [wishlistPids, setWishlistPids] = useState([]);
 
 
 
@@ -81,42 +83,90 @@ function Getprod() {
 
 
   const addtocart = async (item) => {
-      console.log(item)
-      if (!sessionStorage.getItem("currentUser")) {
-        alert("Login First!!")
+    console.log(item)
+    if (!sessionStorage.getItem("currentUser")) {
+      alert("Login First!!")
       navigate('/', { state: { from: '/allprod' } })
+    }
+    else {
+      const id = sessionStorage.getItem("currentUser")
+      const idd = JSON.parse(id)
+      const totall = item.price * 1
+      const dataToSend = { pid: item._id, title: item.title, price: item.price, image: item.image, uid: idd, total: totall };
+      const reqHeader = {
+        "Authorization": `Bearer ${token} `
+      }
+      console.log(dataToSend)
+      const res1 = await addcart(dataToSend, reqHeader)
+      console.log(res1)
+      if (res1.status === 200) {
+        alert("Product added to cart!!")
+        // navigate('/cart')
       }
       else {
-        const id = sessionStorage.getItem("currentUser")
-        const idd = JSON.parse(id)
-        const totall = item.price * 1
-        const dataToSend = { pid: item._id, title: item.title, price: item.price, image: item.image, uid: idd, total: totall };
-        const reqHeader = {
-          "Authorization": `Bearer ${token} `
-        }
-        console.log(dataToSend)
-        const res1 = await addcart(dataToSend,reqHeader)
-        console.log(res1)
-        if (res1.status === 200) {
-          alert("Product added to cart!!")
-          // navigate('/cart')
-        }
-        else {
-          alert("Product Already excists in cart")
-        }
+        alert("Product Already excists in cart")
       }
     }
-  
-  
-    useEffect(() => {
-      allpr()
-      if (sessionStorage.getItem("token")) {
-        setToken(sessionStorage.getItem("token"))
-      }
-    }, [])
-  
+  }
 
- 
+
+  const addwishlist = async (item) => {
+    if (!sessionStorage.getItem("currentUser")) {
+      alert("Login First!!")
+      navigate('/', { state: { from: '/allprod' } })
+    }
+    else {
+      const id = sessionStorage.getItem("currentUser")
+      const idd = JSON.parse(id)
+      const dataToSend = { pid: item._id, title: item.title, price: item.price, image: item.image, uid: idd };
+      console.log(dataToSend)
+      const reqHeader = {
+        "Authorization": `Bearer ${token} `
+      }
+      const res1 = await addwish(dataToSend, reqHeader)
+      console.log(res1)
+      if (res1.status === 201) {
+        alert("Item added to Wishlist!!")
+        setWishlistPids(prev => [...prev, item._id]);
+
+        // navigate('/wish')
+      }
+      else {
+        alert("Product Already excists")
+      }
+    }
+  }
+
+
+  const fetchWishlist = async () => {
+    const user = sessionStorage.getItem("currentUser");
+    const token = sessionStorage.getItem("token");
+
+    if (user && token) {
+      const uid = JSON.parse(user);
+      const reqHeader = {
+        "Authorization": `Bearer ${token}`
+      };
+      const res = await getwish(uid, reqHeader);
+      if (res.status === 200) {
+        const pids = res.data.map(item => item.pid);
+        setWishlistPids(pids);
+      }
+    }
+  };
+
+
+
+  useEffect(() => {
+    allpr()
+    if (sessionStorage.getItem("token")) {
+      setToken(sessionStorage.getItem("token"))
+      fetchWishlist()
+    }
+  }, [])
+
+
+
 
   useEffect(() => {
     if (cid !== null) {
@@ -203,7 +253,7 @@ function Getprod() {
                       <img
                         src={item.image}
                         alt="Product"
-                        onClick={()=>handle(item._id)}
+                        onClick={() => handle(item._id)}
                         className="product-image rounded-top"
                       />
                       <div className="product-info p-2">
@@ -214,8 +264,8 @@ function Getprod() {
                           <button className='btn btn-outline-dark' onClick={() => { addtocart(item) }} >
                             <span><i className="fa-solid fa-cart-plus fa-lg"></i></span>
                           </button>
-                          <button className='btn btn-outline-dark' >
-                            <span><i className="fa-solid fa-heart fa-lg"></i></span>
+                          <button className='btn btn-outline-dark' onClick={() => addwishlist(item)} >
+                            <i className={`fa-solid fa-heart fa-lg`} style={{ color: wishlistPids.includes(item._id) ? 'red' : 'grey' }}></i>
                           </button>
                         </div>
 

@@ -5,9 +5,17 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import im from '../assets/s (1).jpg';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 function Header() {
+
+   const navigate=useNavigate()
+
+  const logout=async()=>{
+    sessionStorage.clear()
+    navigate('/log')
+  }
   return (
     <div>
          <Navbar expand="lg" style={{ backgroundColor: 'white' }}>
@@ -29,6 +37,11 @@ function Header() {
               <Link to={'cart'}>       <i className="fa-solid fa-cart-shopping ms-3 fa-2xl" style={{ color: '#000000' }}></i></Link>
             </Nav.Link>
           </Nav>
+          <Nav.Link href="">
+                          <Link to=''>       <i className="fa-solid fa-user ms-3 fa-lg" style={{ color: '#000000' }} onClick={logout}>LOGOUT</i></Link>
+
+            </Nav.Link>
+
         </Navbar.Collapse>
       </Container>
     </Navbar>

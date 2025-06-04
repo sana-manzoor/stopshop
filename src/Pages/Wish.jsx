@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useContext } from 'react'
 import { Card, Button } from 'react-bootstrap'
 import { getwish, addcart, delwish } from '../services/allApis'
+import { toast } from 'react-toastify'
+import { cartResponseContext } from '../context/ContextShare'
+
+
 
 function Wish() {
 
     const [data, setData] = useState([])
 
     const [token, setToken] = useState("")
+
+    const { cartResponse, setCartResponse } = useContext(cartResponseContext)
 
     const getdata = async () => {
         const id = sessionStorage.getItem("currentUser")
@@ -23,7 +29,7 @@ function Wish() {
     const addtocart = async (item) => {
         console.log(item)
         if (!sessionStorage.getItem("currentUser")) {
-            alert("Login First!!")
+            toast.warning("Login First!!")
             navigate('/', { state: { from: '/allprod' } })
         }
         else {
@@ -38,11 +44,13 @@ function Wish() {
             const res1 = await addcart(dataToSend, reqHeader)
             console.log(res1)
             if (res1.status === 200) {
-                alert("Product added to cart!!")
+                toast.success("Product added to cart!!")
                 // navigate('/cart')
+                setCartResponse(res1.data)
+
             }
             else {
-                alert("Product Already excists in cart")
+                toast.warning("Product Already excists in cart")
             }
         }
     }
@@ -77,7 +85,13 @@ function Wish() {
 
     return (
         <>
-            <h3 className="text-center mt-2 ht2">WISHLIST</h3>
+
+          <h3 className="text-center mt-2 ht2">WISHLIST</h3>
+
+            {
+
+                data?.length > 0 ?
+
             <section className="py-5">
                 <div className="container mt-2">
                     <div className='row justify-content-start'>
@@ -114,6 +128,13 @@ function Wish() {
 
                 </div>
             </section>
+            :
+            (
+                <div style={{minHeight:'400px'}}>
+                                        <h2 className=" text-muted m-3" >No items in the wishlist.</h2>
+
+                </div>
+                                    )}
         </>
     )
 }

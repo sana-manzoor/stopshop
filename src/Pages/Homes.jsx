@@ -6,6 +6,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { getallcat, getallsub } from '../services/allApis';
 import { useNavigate } from 'react-router-dom';
 import { getrecom, getrecent } from '../services/allApis';
+import { useLocation } from 'react-router-dom';
 
 function Homes() {
 
@@ -21,8 +22,11 @@ function Homes() {
 
     const navigate = useNavigate()
 
+    const location = useLocation();
+
     const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
     const containerRef = useRef(null);
+
 
     const toggleRefs = useRef([]);
 
@@ -110,9 +114,12 @@ function Homes() {
     }
 
 
-    const getsubb = (id) => {
-        console.log("sid is", id)
-        sessionStorage.setItem("sid", JSON.stringify(id))
+    const getsubb = (data) => {
+        console.log(data)
+     
+        sessionStorage.setItem("sid", JSON.stringify(data.sid))
+        sessionStorage.setItem("cid", JSON.stringify(data.cid))
+
         navigate('/getprod')
 
     }
@@ -155,7 +162,7 @@ function Homes() {
         }
         document.addEventListener("mousedown", onClickOutside);
         return () => document.removeEventListener("mousedown", onClickOutside);
-    }, []);
+    }, [location.pathname]);
 
     console.log(recent)
 
@@ -229,7 +236,7 @@ function Homes() {
                                 <div
 
                                     style={{ padding: "8px", cursor: "pointer" }}
-                                    onClick={() => getsubb(sub.sid)} // or navigate/use the id
+                                    onClick={() => getsubb(sub)} // or navigate/use the id
                                 >
                                     {sub.sname}
                                 </div>
@@ -269,13 +276,13 @@ function Homes() {
             {/*-----carousel-----*/}
             <Carousel className='mt-3 mb-3'>
                 <Carousel.Item>
-                    <img src="https://mir-s3-cdn-cf.behance.net/project_modules/1400/000a3e161286933.63c2ab4d58686.jpg" alt="" style={{ height: '350px', width: '100%', objectFit: 'cover' }} />
+                    <img src="https://f.nooncdn.com/mpcms/EN0001/assets/02dc6103-033e-48f6-9454-2f8ee55e48a7.png" alt="" style={{ height: '350px', width: '100%', objectFit: 'cover' }} />
                 </Carousel.Item>
                 <Carousel.Item>
-                    <img src="https://static.vecteezy.com/system/resources/previews/006/549/978/original/weekly-sale-banner-design-template-sale-background-design-special-offer-promotion-discount-banner-free-vector.jpg" alt="" style={{ height: '350px', width: '100%', objectFit: 'cover' }} />
+                    <img src="https://f.nooncdn.com/mpcms/EN0001/assets/ce49b6eb-d967-4cc0-9f0b-81f2c9b44627.png" alt="" style={{ height: '350px', width: '100%', objectFit: 'cover' }} />
                 </Carousel.Item>
                 <Carousel.Item>
-                    <img src="https://mir-s3-cdn-cf.behance.net/project_modules/1400_opt_1/8f69a6161286933.63c2ab4c9240f.jpg" alt="" style={{ height: '350px', width: '100%', objectFit: 'cover' }} />
+                    <img src="https://f.nooncdn.com/ads/banner-1008x1008/en_dk_uae-hero-01%20%E2%80%93%202%20(1).1748874675.5339878.png" alt="" style={{ height: '350px', width: '100%', objectFit: 'cover' }} />
                 </Carousel.Item>
             </Carousel>
 
@@ -339,8 +346,9 @@ function Homes() {
             <div className=' container d-flex justify-content-between dd mb-4'>
                 {
                     recom?.map((item) => (
-                        <Prodcard data={item} />
-                    ))
+                        item?.image && item?.title && item?.price && (
+                            <Prodcard key={item.pid} data={item} />
+                        )))
                 }
 
             </div>

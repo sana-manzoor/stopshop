@@ -4,7 +4,7 @@ import { loginApi } from '../services/allApis'
 import { useNavigate } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import im from '../assets/s (1).jpg';
-
+import { toast } from 'react-toastify'
 
 function Login() {
     const [log, setLog] = useState({
@@ -50,7 +50,7 @@ function Login() {
         console.log(log)
         const { phone, password } = log
         if (!phone || !password) {
-            alert("Enter phone and Password!!")
+            toast.warning("Enter phone and Password!!")
         }
         else {
             const res = await loginApi(log)
@@ -60,14 +60,14 @@ function Login() {
 
                 setLog({ phone: "", password: "" })
                 sessionStorage.setItem("token", res.data.token);
-                alert("Login Successfull!!")
+                toast.success("Login Successfull!!")
                 setLog({ phone: "", password: "" });
                 const redirectTo = location.state?.from || '/hom';
                 navigate(redirectTo);
 
             }
             else {
-                alert(res.response.data)
+                toast.danger(res.response.data)
             }
         }
     }

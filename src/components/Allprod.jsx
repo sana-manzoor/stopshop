@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useContext } from 'react'
 import { getcprod } from '../services/allApis';
 import { useNavigate } from 'react-router-dom';
 import { addcart } from '../services/allApis';
 import { addwish, getwish } from '../services/allApis';
+import { toast } from 'react-toastify'
+import { cartResponseContext } from '../context/ContextShare';
+import { useLocation } from 'react-router-dom';
 
 function Allprod() {
 
@@ -18,6 +21,9 @@ function Allprod() {
 
   const [wishlistPids, setWishlistPids] = useState([]);
 
+      const {cartResponse,setCartResponse}=useContext(cartResponseContext)
+  
+   const location = useLocation();
 
   const navigate = useNavigate()
 
@@ -31,30 +37,10 @@ function Allprod() {
       setAllp(result.data)
       // sessionStorage.removeItem('cid');
     }
-    else {
-      const result = await getcprod(cid)
-      console.log(result)
-      setAllp(result.data)
-    }
+   
+    
 
-    const fetchWishlist = async () => {
-      const user = sessionStorage.getItem("currentUser");
-      const token = sessionStorage.getItem("token");
-
-      if (user && token) {
-        const uid = JSON.parse(user);
-        const reqHeader = {
-          "Authorization": `Bearer ${token}`
-        };
-        const res = await getwish(uid, reqHeader);
-        if (res.status === 200) {
-          const pids = res.data.map(item => item.pid); // array of wishlisted product IDs
-          setWishlistPids(pids);
-        }
-      }
-    };
-
-
+   
   }
 
   const handleCategoryChange = (e, sname) => {
@@ -73,15 +59,15 @@ function Allprod() {
 
   const handle = async (id) => {
     console.log(id)
-    sessionStorage.setItem("pid", JSON.stringify(id))
-    navigate('/viewprod')
+       navigate(`/view/${id}`);
+
   }
 
 
   const addtocart = async (item) => {
     console.log(item)
     if (!sessionStorage.getItem("currentUser")) {
-      alert("Login First!!")
+      toast.warning("Login First!!")
       navigate('/', { state: { from: '/allprod' } })
     }
     else {
@@ -96,11 +82,13 @@ function Allprod() {
       const res1 = await addcart(dataToSend, reqHeader)
       console.log(res1)
       if (res1.status === 200) {
-        alert("Product added to cart!!")
+        toast.success("Product added to cart!!")
+                setCartResponse(res1.data)
+
         // navigate('/cart')
       }
       else {
-        alert("Product Already excists in cart")
+        toast.warning("Product Already excists in cart")
       }
     }
   }
@@ -110,7 +98,7 @@ function Allprod() {
 
   const addwishlist = async (item) => {
     if (!sessionStorage.getItem("currentUser")) {
-      alert("Login First!!")
+      toast.warning("Login First!!")
       navigate('/', { state: { from: '/allprod' } })
     }
     else {
@@ -124,12 +112,12 @@ function Allprod() {
       const res1 = await addwish(dataToSend, reqHeader)
       console.log(res1)
       if (res1.status === 201) {
-        alert("Item added to Wishlist!!")
+        toast.success("Item added to Wishlist!!")
         setWishlistPids(prev => [...prev, item._id]);
         // navigate('/wish')
       }
       else {
-        alert("Product Already excists")
+        toast.warning("Product Already excists")
       }
     }
   }
@@ -155,16 +143,52 @@ function Allprod() {
 
 
 
-  useEffect(() => {
-    allpr()
-    if (sessionStorage.getItem("token")) {
-      setToken(sessionStorage.getItem("token"))
-      fetchWishlist()
+useEffect(() => {
+  const fetchInitialData = async () => {
+    const sessionCid = sessionStorage.getItem("cid");
+    const sessionToken = sessionStorage.getItem("token");
+
+    if (sessionToken) {
+      setToken(sessionToken);
+      fetchWishlist();
     }
 
-  }, [])
+    if (sessionCid) {
+      const parsedCid = JSON.parse(sessionCid);
+      setCid(parsedCid);
 
-  console.log(allp)
+      const result = await getcprod(parsedCid);
+      if (result.status === 200) {
+        setAllp(result.data);
+      } else {
+        setAllp([]);
+      }
+    } else {
+      setAllp([]); 
+    }
+  };
+
+  fetchInitialData();
+}, [location.key]);
+
+
+
+
+
+useEffect(() => {
+  if (cid) {
+    const loadProducts = async () => {
+      const result = await getcprod(cid);
+      if (result.status === 200) {
+        setAllp(result.data);
+      }
+    };
+    loadProducts();
+  }
+}, [cid]); 
+
+
+
   return (
     <div className="container mb-5" style={{ minHeight: '400px' }}>
 
@@ -197,7 +221,7 @@ function Allprod() {
             <div className="mb-3">
               <form>
                 <label htmlFor="category" className="p-2"><b>SUB CATEGORIES</b></label><br />
-                <input type="checkbox" defaultChecked onClick={() => allpr()} checked={checkedCategories.length === 0} onChange={() => setCheckedCategories([])} />All
+                <input type="checkbox"  checked={checkedCategories.length === 0} onChange={() =>{ setCheckedCategories([]);allpr()}} />All
 
                 <br />
                 {
@@ -234,10 +258,17 @@ function Allprod() {
 
           <div>
             <div className="row">
-              {
-                (filteredProducts.length > 0 ? filteredProducts : allp)?.map((item) => (
-                  <div key='' className="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
-                    <div className="product-card shadow-sm rounded">
+           
+
+
+
+
+
+            <div className="row">
+  {filteredProducts.length > 0 ? (
+    filteredProducts.map((item) => (
+      <div key={item._id} className="col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
+        <div className="product-card shadow-sm rounded">
                       <img
                         src={item.image}
                         alt="Product"
@@ -261,10 +292,13 @@ function Allprod() {
 
                       </div>
                     </div>
-                  </div>
-
-                ))
-              }
+      </div>
+    ))
+  ) : (
+    <p className="text-center mt-4">No products found for selected filters.</p>
+  )}
+</div>
+            
 
 
             </div>

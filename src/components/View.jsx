@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { viewp } from '../services/allApis'
 import { addcart } from '../services/allApis'
 import { addwish, getwish, addrecent } from '../services/allApis'
+import { toast } from 'react-toastify'
+import { cartResponseContext } from '../context/ContextShare'
+import { useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom'
 
 
-function Viewprod() {
+
+function View() {
 
     const [data, setData] = useState({})
 
@@ -16,26 +22,46 @@ function Viewprod() {
 
     const [lastv, setLastv] = useState({})
 
+    const location = useLocation();
+
+    const { cartResponse, setCartResponse } = useContext(cartResponseContext)
+
+    const navigate = useNavigate()
+
+    const { pidd } = useParams();
+
+    const [loading, setLoading] = useState(false);
+
 
     const getData = async () => {
-        const uu = JSON.parse(sessionStorage.getItem("pid"))
-        setPid(uu)
-        console.log(uu)
-        const uup = JSON.stringify(uu)
-        console.log(uup)
-        const result = await viewp(uu)
-        console.log(result)
-        setData(result.data[0])
-        setLastv(result.data[0])
+        setLoading(true);
+        try {
+            const result = await viewp(pidd);
+            console.log(result);
 
-        //   sessionStorage.removeItem('pid');          
-    }
+            if (result?.status === 200 && result?.data?.length > 0) {
+                const product = result.data[0];
+                setData(product);
+                setLastv(product);
+                getlast(product);
+            } else {
+                toast.error("Product not found");
+            }
+        } catch (error) {
+            console.error("Error fetching product:", error);
+            toast.error("Failed to fetch product");
+        }
+        finally {
+            setLoading(false);
+        }
+    };
+
 
 
     const addtocart = async (item) => {
         console.log(item)
         if (!sessionStorage.getItem("currentUser")) {
-            alert("Login First!!")
+            toast.warning("Login First!!")
             navigate('/', { state: { from: '/viewprod' } })
         }
         else {
@@ -50,11 +76,13 @@ function Viewprod() {
             const res1 = await addcart(dataToSend, reqHeader)
             console.log(res1)
             if (res1.status === 200) {
-                alert("Product added to cart!!")
+                toast.success("Product added to cart!!")
+                setCartResponse(res1.data)
+
                 // navigate('/cart')
             }
             else {
-                alert("Product Already excists in cart")
+                toast.warning("Product Already excists in cart")
             }
         }
     }
@@ -62,7 +90,7 @@ function Viewprod() {
 
     const addwishlist = async (item) => {
         if (!sessionStorage.getItem("currentUser")) {
-            alert("Login First!!")
+            toast.warning("Login First!!")
             navigate('/', { state: { from: '/allprod' } })
         }
         else {
@@ -76,13 +104,13 @@ function Viewprod() {
             const res1 = await addwish(dataToSend, reqHeader)
             console.log(res1)
             if (res1.status === 201) {
-                alert("Item added to Wishlist!!")
+                toast.success("Item added to Wishlist!!")
                 setWishlistPids(prev => [...prev, item._id]);
 
                 // navigate('/wish')
             }
             else {
-                alert("Product Already excists")
+                toast.warning("Product Already excists")
             }
         }
     }
@@ -106,28 +134,36 @@ function Viewprod() {
     };
 
 
-    const getlast = async () => {
-        console.log(lastv)
-        const id = sessionStorage.getItem("currentUser")
-        const idd = JSON.parse(id)
-        const dataToSend = { pid: lastv._id, title: lastv.title, price: lastv.price, image: lastv.image, uid: idd };
-        console.log(dataToSend)
-           const result = await addrecent(dataToSend)
-        console.log(result)
+    const getlast = async (product) => {
+        const id = sessionStorage.getItem("currentUser");
+        if (!id || !product?._id) return;
 
-    }
+        const uid = JSON.parse(id);
+        const dataToSend = {
+            pid: product._id,
+            title: product.title,
+            price: product.price,
+            image: product.image,
+            uid: uid,
+        };
+
+        try {
+            const result = await addrecent(dataToSend);
+            console.log("Recent added:", result);
+        } catch (error) {
+            console.error("Failed to add recent:", error);
+        }
+    };
 
 
     console.log(lastv)
-
     useEffect(() => {
         if (sessionStorage.getItem("token")) {
-            setToken(sessionStorage.getItem("token"))
-            fetchWishlist()
+            setToken(sessionStorage.getItem("token"));
+            fetchWishlist();
         }
-        getData()
-
-    }, [])
+        getData();
+    }, [pidd]);
 
     useEffect(() => {
         getlast()
@@ -135,13 +171,20 @@ function Viewprod() {
 
     return (
         <div className="container mb-5" style={{ marginTop: '80px', minHeight: '500px' }}>
+             {loading ? (
+      <div className="text-center my-5">
+        <div className="spinner-border text-primary" role="status" style={{ width: '5rem', height: '5rem' }}>
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    ) : (
             <div className="row gx-4 gx-lg-5 mb-4 align-items-center">
                 <div className="  col-md-6">
-                    <img className="card-img-top mb-5 mb-md-0" src={data.image} alt="..." height={'480px'} />
+                    <img className="card-img-top mb-5 mb-md-0" src={data?.image} alt="..." height={'480px'} />
                 </div>
                 <div className="  col-md-6">
                     {/* <div className="small mb-1">Product Id: 23</div> */}
-                    <h2 className="display-5 fw-bolder ht1 mb-3">{data.title}</h2>
+                    <h2 className="display-5 fw-bolder ht1 mb-3">{data?.title}</h2>
                     <div className='mb-3' >
                         <i className="fas fa-star" style={{ color: "rgb(221, 231, 38)" }}></i>
                         <i className="fas fa-star ms-2" style={{ color: "rgb(221, 231, 38)" }}></i>
@@ -150,9 +193,9 @@ function Viewprod() {
                         <i className="fas fa-star ms-2" style={{ color: "rgb(206, 206, 206)" }}></i>
                     </div>
                     <div className="fs-5 mb-4">
-                        <h3 className='ht1'>₹{data.price}</h3>
+                        <h3 className='ht1'>₹{data?.price}</h3>
                     </div>
-                    <p className="lead">{data.description}</p>
+                    <p className="lead">{data?.description}</p>
 
 
                     <div className='d-flex justify-content-start'>
@@ -168,10 +211,11 @@ function Viewprod() {
 
 
             </div>
+    )}
 
 
         </div>
     )
 }
 
-export default Viewprod
+export default View

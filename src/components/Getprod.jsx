@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useContext } from 'react'
 import { getsprod, getcprod } from '../services/allApis';
 import { useNavigate } from 'react-router-dom';
 import { addcart } from '../services/allApis';
 import { addwish, getwish } from '../services/allApis';
+import { toast } from 'react-toastify'
+import { cartResponseContext } from '../context/ContextShare';
+
 
 function Getprod() {
 
@@ -21,37 +24,40 @@ function Getprod() {
 
   const [sid, setSid] = useState(null);
 
-  const [cid, setCid] = useState(null);
+  const [cid, setCid] = useState(sessionStorage.getItem('cid'));
 
   const [token, setToken] = useState("")
 
   const [wishlistPids, setWishlistPids] = useState([]);
 
+      const {cartResponse,setCartResponse}=useContext(cartResponseContext)
 
 
-  const allpr = async () => {
-    if (sessionStorage.getItem("sid")) {
-      const uu = JSON.parse(sessionStorage.getItem("sid"))
-      setSid(uu)
-      console.log(uu)
-      const result = await getsprod(uu)
-      console.log(result.data[0].cid)
-      setAllp(result.data)
-      setCid(result.data[0].cid);
-      console.log(cid)
-      setDefaultSubcategory(result.data[0].sname);
-      setCheckedCategories([result.data[0].sname]);
-      // sessionStorage.removeItem('sid');
+const allpr = async () => {
+  const sidFromStorage = sessionStorage.getItem("sid");
+  console.log("Session sid:", sidFromStorage);
+
+  if (sidFromStorage) {
+    const parsedSid = JSON.parse(sidFromStorage);
+    const result = await getsprod(parsedSid);
+    console.log("Fetched from getsprod:", result);
+
+    if (result?.data?.length > 0) {
+      const firstProduct = result.data[0];
+      console.log("First product:", firstProduct);
+
+      setAllp(result.data);
+      setCid(firstProduct.cid || "MISSING_CID");  // fallback log value
+      setDefaultSubcategory(firstProduct.sname);
+      setCheckedCategories([firstProduct.sname]);
+    } else {
+      console.warn("No product data returned from getsprod");
     }
-    else {
-      const result = await getsprod(sid)
-      console.log(result)
-      setAllp(result.data)
-      setCid(result.data[0].cid);
-      setDefaultSubcategory(result.data[0].sname);
-      setCheckedCategories([result.data[0].sname]);
-    }
+  } else {
+    console.warn("No sid found in sessionStorage");
   }
+};
+
 
   console.log(cid)
 
@@ -76,8 +82,8 @@ function Getprod() {
 
   const handle = async (id) => {
     console.log(id)
-    sessionStorage.setItem("pid", JSON.stringify(id))
-    navigate('/viewprod')
+       navigate(`/view/${id}`);
+
   }
 
 
@@ -85,7 +91,7 @@ function Getprod() {
   const addtocart = async (item) => {
     console.log(item)
     if (!sessionStorage.getItem("currentUser")) {
-      alert("Login First!!")
+      toast.warning("Login First!!")
       navigate('/', { state: { from: '/allprod' } })
     }
     else {
@@ -100,11 +106,13 @@ function Getprod() {
       const res1 = await addcart(dataToSend, reqHeader)
       console.log(res1)
       if (res1.status === 200) {
-        alert("Product added to cart!!")
+        toast.success("Product added to cart!!")
+         setCartResponse(res1.data)
+
         // navigate('/cart')
       }
       else {
-        alert("Product Already excists in cart")
+        toast.warning("Product Already excists in cart")
       }
     }
   }
@@ -112,7 +120,7 @@ function Getprod() {
 
   const addwishlist = async (item) => {
     if (!sessionStorage.getItem("currentUser")) {
-      alert("Login First!!")
+      toast.warning("Login First!!")
       navigate('/', { state: { from: '/allprod' } })
     }
     else {
@@ -126,13 +134,13 @@ function Getprod() {
       const res1 = await addwish(dataToSend, reqHeader)
       console.log(res1)
       if (res1.status === 201) {
-        alert("Item added to Wishlist!!")
+        toast.success("Item added to Wishlist!!")
         setWishlistPids(prev => [...prev, item._id]);
 
         // navigate('/wish')
       }
       else {
-        alert("Product Already excists")
+        toast.warning("Product Already excists")
       }
     }
   }
@@ -172,7 +180,7 @@ function Getprod() {
     if (cid !== null) {
       allprs();
     }
-  }, [cid]);
+  }, []);
 
   console.log(allps)
 
@@ -210,7 +218,7 @@ function Getprod() {
             <div className="mb-3">
               <form>
                 <label htmlFor="category" className="p-2"><b>SUB CATEGORIES</b></label><br />
-                <input type="checkbox" checked={checkedCategories.length === 0} onChange={() => setCheckedCategories([])}
+                <input type="checkbox" checked={checkedCategories.length === 0} onChange={() =>{ setCheckedCategories([]);allprs()}}
                 /> All                <br />
                 {
                   [...new Map(allps.map(item => [item.sname, item])).values()].map(item => (

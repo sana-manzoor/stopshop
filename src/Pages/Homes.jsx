@@ -39,7 +39,6 @@ function Homes() {
 
         const toggleRect = toggleRefs.current[idx].getBoundingClientRect();
 
-        // Calculate menu position relative to viewport
         setMenuPos({
             top: toggleRect.bottom + window.scrollY,
             left: toggleRect.left + window.scrollX,
@@ -146,25 +145,36 @@ function Homes() {
 
     const popupRef = useRef(null);
 
-    useEffect(() => {
+  useEffect(() => {
+    const navType = window.performance.getEntriesByType("navigation")[0]?.type;
+
+    if (navType === "back_forward") {
+        console.log("Back/forward navigation detected. Reloading data...");
         getallcats();
         getrecomm();
         getrecentss();
-        function onClickOutside(event) {
-            if (
-                containerRef.current &&
-                !containerRef.current.contains(event.target) &&
-                popupRef.current &&
-                !popupRef.current.contains(event.target)
-            ) {
-                closeMenu();
-            }
-        }
-        document.addEventListener("mousedown", onClickOutside);
-        return () => document.removeEventListener("mousedown", onClickOutside);
-    }, [location.pathname]);
+    }
 
-    console.log(recent)
+    getallcats();
+    getrecomm();
+    getrecentss();
+
+    function onClickOutside(event) {
+        if (
+            containerRef.current &&
+            !containerRef.current.contains(event.target) &&
+            popupRef.current &&
+            !popupRef.current.contains(event.target)
+        ) {
+            closeMenu();
+        }
+    }
+
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+
+}, [location.pathname]);
+
 
     return (
 
@@ -330,7 +340,7 @@ function Homes() {
             <div className=' container d-flex justify-content-between dd mb-4'>
 
                 {
-                    recent?.map((item) => (
+                    recent?.slice(0, 4).map((item) => (
                         item?.image && item?.title && item?.price && (
                             <Prodcard key={item.pid} data={item} />
                         )

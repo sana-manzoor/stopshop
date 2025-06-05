@@ -266,7 +266,7 @@ const allpr = async () => {
                       />
                       <div className="product-info p-2">
                         <h2 className="product-title mb-2 ht1">{item.title}</h2>
-                        <p className="product-price ht1 fw-bold">{item.price}</p>
+                        <p className="product-price ht1 fw-bold">₹{item.price}</p>
                         <div className="d-flex justify-content-evenly ">
 
                           <button className='btn btn-outline-dark' onClick={() => { addtocart(item) }} >

@@ -65,9 +65,9 @@ function Cart() {
         <>
 
 
-            <div className="p-5 row gx-0" style={{ minHeight: '80vh' }}>
+            <div  style={{ minHeight: '80vh' }}>
                 {data?.length > 0 ? (
-                    <div>
+                    <div className='p-5 row gx-0"'>
                         <div className="col-md-8 me-5 c-p" >
                             {/* <h2 className="text-center  m-4">cart <span className='ht2'>SUMMARY..</span> </h2> */}
 
@@ -172,3 +172,14 @@ function Cart() {
 }
 
 export default Cart
+
+
+
+
+
+
+
+
+
+
+

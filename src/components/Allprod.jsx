@@ -6,6 +6,8 @@ import { addwish, getwish } from '../services/allApis';
 import { toast } from 'react-toastify'
 import { cartResponseContext } from '../context/ContextShare';
 import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+
 
 function Allprod() {
 
@@ -16,6 +18,8 @@ function Allprod() {
   const [checkedCategories, setCheckedCategories] = useState([]);
 
   const [cid, setCid] = useState(null);
+
+  const { category } = useParams();
 
   const [token, setToken] = useState("")
 

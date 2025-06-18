@@ -5,6 +5,7 @@ import { addcart } from '../services/allApis';
 import { addwish, getwish } from '../services/allApis';
 import { toast } from 'react-toastify'
 import { cartResponseContext } from '../context/ContextShare';
+import { useParams } from 'react-router-dom';
 
 
 function Getprod() {
@@ -19,6 +20,8 @@ function Getprod() {
   const [defaultSubcategory, setDefaultSubcategory] = useState(null);
 
   const navigate = useNavigate()
+
+  const { subcategory } = useParams();
 
   const [checkedCategories, setCheckedCategories] = useState([]);
 
@@ -47,7 +50,7 @@ const allpr = async () => {
       console.log("First product:", firstProduct);
 
       setAllp(result.data);
-      setCid(firstProduct.cid || "MISSING_CID");  // fallback log value
+      setCid(firstProduct.cid || "MISSING_CID");  
       setDefaultSubcategory(firstProduct.sname);
       setCheckedCategories([firstProduct.sname]);
     } else {

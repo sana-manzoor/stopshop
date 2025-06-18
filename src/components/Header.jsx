@@ -51,7 +51,7 @@ function Header() {
     <div>
       <Navbar expand="lg" style={{ backgroundColor: 'white' }}>
         <Container>
-          <Navbar.Brand href="">
+          <Navbar.Brand as={Link} to="/hom">
             <img src={im} alt="Logo" style={{ height: '55px' }} />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Card, Button } from 'react-bootstrap'
 import { getwish, addcart, delwish } from '../services/allApis'
 import { toast } from 'react-toastify'
@@ -86,55 +86,55 @@ function Wish() {
     return (
         <>
 
-          <h3 className="text-center mt-2 ht2">WISHLIST</h3>
+            <h3 className="text-center mt-2 ht2">WISHLIST</h3>
 
             {
 
                 data?.length > 0 ?
 
-            <section className="py-5">
-                <div className="container mt-2">
-                    <div className='row justify-content-start'>
+                    <section className="py-5">
+                        <div className="container mt-2">
+                            <div className='row justify-content-start'>
 
 
-                        {
-                            data?.map(item => (
-                                <div className="col-6 col-md-3 mb-4 d-flex justify-content-center">
-                                    <Card style={{ width: '17rem', height: '400px' }} className='border shadow mb-2 text-center'>
-                                        <Card.Img
-                                            variant="top" src={item.image} style={{ height: '230px' }} className='img-fluid' />
-                                        <Card.Body>
-                                            <div id='t1' className='mb-2'><b>{item.title}</b></div>
-                                            <h5 className='mb-3'>₹{item.price}</h5>
-                                            <div className="card-footer d-flex justify-content-between">
-                                                <Button className="btn" variant="outline-dark" onClick={()=>{deletewish(item._id)}}>
-                                                    <i className="fa-solid fa-lg fa-heart-circle-xmark"></i>
-                                                </Button>
-                                                <Button className="btn" variant="outline-dark" onClick={() => { addtocart(item) }}>
-                                                    <i className="fa-solid fa-cart-plus fa-lg"></i>
-                                                </Button>
-                                            </div>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
-                            ))
-                        }
+                                {
+                                    data?.map(item => (
+                                        <div className="col-6 col-md-3 mb-4 d-flex justify-content-center">
+                                            <Card style={{ width: '17rem', height: '400px' }} className='border shadow mb-2 text-center'>
+                                                <Card.Img
+                                                    variant="top" src={item.image} style={{ height: '230px' }} className='img-fluid' />
+                                                <Card.Body>
+                                                    <div id='t1' className='mb-2'><b>{item.title}</b></div>
+                                                    <h5 className='mb-3'>₹{item.price}</h5>
+                                                    <div className="card-footer d-flex justify-content-between">
+                                                        <Button className="btn" variant="outline-dark" onClick={() => { deletewish(item._id) }}>
+                                                            <i className="fa-solid fa-lg fa-heart-circle-xmark"></i>
+                                                        </Button>
+                                                        <Button className="btn" variant="outline-dark" onClick={() => { addtocart(item) }}>
+                                                            <i className="fa-solid fa-cart-plus fa-lg"></i>
+                                                        </Button>
+                                                    </div>
+                                                </Card.Body>
+                                            </Card>
+                                        </div>
+                                    ))
+                                }
 
 
 
 
-                    </div>
+                            </div>
 
 
-                </div>
-            </section>
-            :
-            (
-                <div style={{minHeight:'400px'}}>
-                                        <h2 className=" text-muted m-3" >No items in the wishlist.</h2>
+                        </div>
+                    </section>
+                    :
+                    (
+                        <div style={{ minHeight: '400px' }}>
+                            <h2 className=" text-muted m-3" >No items in the wishlist.</h2>
 
-                </div>
-                                    )}
+                        </div>
+                    )}
         </>
     )
 }

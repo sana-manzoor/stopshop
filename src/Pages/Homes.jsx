@@ -25,6 +25,7 @@ function Homes() {
     const location = useLocation();
 
     const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+
     const containerRef = useRef(null);
 
 
@@ -104,10 +105,10 @@ function Homes() {
     };
 
 
-    const getss = (id) => {
+    const getss = (id, cname) => {
         console.log("inside gets", id)
         sessionStorage.setItem("cid", JSON.stringify(id))
-        navigate('/allprod')
+        navigate(`/allprod/${cname}`)
 
 
     }
@@ -115,11 +116,11 @@ function Homes() {
 
     const getsubb = (data) => {
         console.log(data)
-     
+
         sessionStorage.setItem("sid", JSON.stringify(data.sid))
         sessionStorage.setItem("cid", JSON.stringify(data.cid))
 
-        navigate('/getprod')
+        navigate(`/getprod/${data.cname}`)
 
     }
 
@@ -145,35 +146,35 @@ function Homes() {
 
     const popupRef = useRef(null);
 
-  useEffect(() => {
-    const navType = window.performance.getEntriesByType("navigation")[0]?.type;
+    useEffect(() => {
+        const navType = window.performance.getEntriesByType("navigation")[0]?.type;
 
-    if (navType === "back_forward") {
-        console.log("Back/forward navigation detected. Reloading data...");
+        if (navType === "back_forward") {
+            console.log("Back/forward navigation detected. Reloading data...");
+            getallcats();
+            getrecomm();
+            getrecentss();
+        }
+
         getallcats();
         getrecomm();
         getrecentss();
-    }
 
-    getallcats();
-    getrecomm();
-    getrecentss();
-
-    function onClickOutside(event) {
-        if (
-            containerRef.current &&
-            !containerRef.current.contains(event.target) &&
-            popupRef.current &&
-            !popupRef.current.contains(event.target)
-        ) {
-            closeMenu();
+        function onClickOutside(event) {
+            if (
+                containerRef.current &&
+                !containerRef.current.contains(event.target) &&
+                popupRef.current &&
+                !popupRef.current.contains(event.target)
+            ) {
+                closeMenu();
+            }
         }
-    }
 
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
+        document.addEventListener("mousedown", onClickOutside);
+        return () => document.removeEventListener("mousedown", onClickOutside);
 
-}, [location.pathname]);
+    }, [location.pathname]);
 
 
     return (
@@ -237,8 +238,7 @@ function Homes() {
                     >
                         <div
                             style={{ padding: "8px", cursor: "pointer" }}
-                            onClick={() => getss(openIndex !== null ? categories[openIndex].cid : null)}
-                        >
+                            onClick={() => getss(categories[openIndex].cid, categories[openIndex].cname)}                        >
                             All
                         </div>
                         {subcat.map((sub, id) => (
@@ -335,18 +335,25 @@ function Homes() {
 
 
             {/* ----------recently viewed produvts-------- */}
+            {
+                recent?.length > 0 && (
+                    <>
+                        <h3 className="text-start ht1 container mb-4 mt-5">
+                            RECENTLY <span className='lt1'> viewed</span>
+                        </h3>
+                        <div className='container d-flex justify-content-between dd mb-4'>
+                            {
+                                recent.slice(0, 4).map((item) => (
+                                    item?.image && item?.title && item?.price && (
+                                        <Prodcard key={item.pid} data={item} />
+                                    )
+                                ))
+                            }
+                        </div>
+                    </>
+                )
+            }
 
-            <h3 className="text-start ht1 container mb-4 mt-5">RECENTLY <span className='lt1'> viewed</span> </h3>
-            <div className=' container d-flex justify-content-between dd mb-4'>
-
-                {
-                    recent?.slice(0, 4).map((item) => (
-                        item?.image && item?.title && item?.price && (
-                            <Prodcard key={item.pid} data={item} />
-                        )
-                    ))
-                }
-            </div>
 
 
 

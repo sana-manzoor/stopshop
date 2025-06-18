@@ -41,12 +41,12 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path='allprod' element={
+        <Route path='allprod/:category' element={
           <ProtectedRoute>
             <Allprod  key={location.key} />
           </ProtectedRoute>
         } />
-        <Route path='getprod' element={
+        <Route path='getprod/:subcategory' element={
           <ProtectedRoute>
             <Getprod />
           </ProtectedRoute>
